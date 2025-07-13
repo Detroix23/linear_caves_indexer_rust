@@ -5,11 +5,22 @@
 use std::io;
 use rand::Rng;
 
+/// Define grid size.
 const GRID_SIZE: usize = 50;
+/// Define number of neighbours required to stay alive 
 const GRID_NEIGHBROURS_TO_LIVE: u8 = 4;
-// struct [[&str; GRID_SIZE]; GRID_SIZE]
-const GRID_TILE_BLANK: &str = "..";
-const GRID_TILE_WALL: &str = "##";
+/// Type grid.
+type Grid = [[bool; GRID_SIZE]; GRID_SIZE];
+/// UI - Structure of the possible state to print.
+pub struct UiTileState {
+    pub blank: &'static str,
+    pub wall: &'static str,
+}
+/// UI - What to print for each state.
+pub const UI_TILES_STATES: UiTileState = UiTileState {
+    blank: "░░",
+    wall: "██",
+};
 
 fn main() {
 
@@ -45,7 +56,7 @@ fn main() {
         
     // Generate grid
     println!("# Input received; generating grid");
-    let grid_main: [[bool; GRID_SIZE]; GRID_SIZE] = generator(0.5, 5, GRID_TILE_BLANK, GRID_TILE_WALL);
+    let grid_main: Grid = generator(0.5, 5, UI_TILES_STATES);
     // print_grid(&grid_main);
 
     // Prevent auto closing
@@ -61,9 +72,9 @@ fn print_grid(grid: &[[bool; GRID_SIZE]; GRID_SIZE]) {
     for line in grid.iter() {
 		for tile in line.iter() {
 			if *tile {
-                print!("{}", GRID_TILE_WALL);
+                print!("{}", UI_TILES_STATES.wall);
             } else {
-                print!("{}", GRID_TILE_BLANK);
+                print!("{}", UI_TILES_STATES.blank);
             }
             
 		}
@@ -71,15 +82,15 @@ fn print_grid(grid: &[[bool; GRID_SIZE]; GRID_SIZE]) {
     }
 }
 
-fn generator<'a>(probability_wall: f64, erosion_iteration: u32, character_air: &'a str, character_wall: &'a str) -> [[bool; GRID_SIZE]; GRID_SIZE] {
+fn generator(probability_wall: f64, erosion_iteration: u32, ui_tiles_states: UiTileState) -> [[bool; GRID_SIZE]; GRID_SIZE] {
     /*
      * Generate a basic random 2D world of caves with random erosion.
      */
     let mut rng = rand::rng();
 
     // Init the grid
-    println!("## Initialized grid with: air='{character_air}'; wall='{character_wall}'.");
-    let mut grid: [[bool; GRID_SIZE]; GRID_SIZE] = [[false; GRID_SIZE]; GRID_SIZE];
+    println!("## Initialized grid with: air='{}'; wall='{}'.", ui_tiles_states.blank, ui_tiles_states.wall);
+    let mut grid: Grid = [[false; GRID_SIZE]; GRID_SIZE];
     
     // Generate randomly walls
     for line in grid.iter_mut() {
@@ -116,7 +127,7 @@ fn generator<'a>(probability_wall: f64, erosion_iteration: u32, character_air: &
     grid
 }
 
-fn neighbours(tile_coord: [usize; 2usize], grid: [[bool; GRID_SIZE]; GRID_SIZE]) -> u8 {
+fn neighbours(tile_coord: [usize; 2usize], grid: Grid) -> u8 {
     /*
      * Count neighbours wall around a tile. 
      */
