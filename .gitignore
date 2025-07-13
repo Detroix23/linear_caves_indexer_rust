@@ -1,0 +1,4 @@
+# Ignore Rust compiling
+/target
+/exe
+Cargo.lock
